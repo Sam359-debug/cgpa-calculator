@@ -1,53 +1,94 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CGPA Calculator</title>
+    <title>CGPA Calculator — Academic Planner</title>
+    <meta name="description" content="Beautiful, interactive CGPA calculator with target planner, animated progress ring, GPA distribution, export support, and real-time grade tracking." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
+    <!-- Animated particle canvas -->
+    <canvas id="particles" aria-hidden="true"></canvas>
+
+    <!-- Toast container -->
+    <div id="toast-container" aria-live="polite"></div>
+
     <main class="app-shell">
+      <!-- ───── Left column ───── -->
       <section class="workspace" aria-labelledby="app-title">
-        <header class="topbar">
-          <div>
-            <p class="eyebrow">Academic planner</p>
-            <h1 id="app-title">CGPA Calculator</h1>
+        <header class="topbar" id="topbar">
+          <div class="topbar-text">
+            <p class="eyebrow">✦ Academic planner</p>
+            <h1 id="app-title">CGPA<br />Calculator</h1>
           </div>
-          <div class="scale-control" aria-label="Grade scale">
-            <label for="scale">Scale</label>
-            <select id="scale">
-              <option value="10">10 point</option>
-              <option value="4">4 point</option>
-            </select>
+          <div class="topbar-controls">
+            <div class="scale-control" aria-label="Grade scale">
+              <label for="scale">Scale</label>
+              <div class="toggle-group" id="scale-toggle">
+                <button class="toggle-btn active" data-value="10" type="button">10 pt</button>
+                <button class="toggle-btn" data-value="4" type="button">4 pt</button>
+                <span class="toggle-slider"></span>
+              </div>
+              <input type="hidden" id="scale" value="10" />
+            </div>
+            <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle theme" title="Toggle light/dark mode">
+              <span class="theme-icon" id="theme-icon">🌙</span>
+            </button>
           </div>
         </header>
 
+        <!-- Summary cards -->
         <section class="summary-grid" aria-label="CGPA summary">
-          <article class="score-panel">
-            <span>Current CGPA</span>
-            <strong id="cgpa">0.00</strong>
-            <small id="performance-label">Add semesters to begin</small>
+          <article class="score-panel glass-card" id="score-card">
+            <div class="score-ring-wrap">
+              <svg class="score-ring" viewBox="0 0 120 120" aria-hidden="true">
+                <circle class="ring-track" cx="60" cy="60" r="52" />
+                <circle class="ring-fill" cx="60" cy="60" r="52" id="ring-fill" />
+              </svg>
+              <div class="ring-value">
+                <strong id="cgpa">0.00</strong>
+                <small>CGPA</small>
+              </div>
+            </div>
+            <div class="score-meta">
+              <span class="perf-badge" id="performance-label">Add semesters</span>
+              <span class="percentage-badge" id="percentage-label" title="Approximate percentage equivalent"></span>
+            </div>
           </article>
-          <article>
-            <span>Total credits</span>
+          <article class="stat-card glass-card" id="credits-card">
+            <div class="stat-icon">📚</div>
             <strong id="total-credits">0</strong>
+            <span>Total credits</span>
           </article>
-          <article>
-            <span>Weighted points</span>
+          <article class="stat-card glass-card" id="points-card">
+            <div class="stat-icon">⚡</div>
             <strong id="total-points">0.00</strong>
+            <span>Weighted points</span>
           </article>
         </section>
 
-        <section class="calculator-panel">
+        <!-- Semester comparison badges -->
+        <section class="comparison-strip" id="comparison-strip" aria-label="Semester comparison">
+          <!-- dynamically populated -->
+        </section>
+
+        <!-- Semester table -->
+        <section class="calculator-panel glass-card">
           <div class="panel-heading">
             <div>
               <h2>Semesters</h2>
               <p>Enter each semester SGPA and credits. CGPA updates instantly.</p>
             </div>
-            <button class="icon-button primary" id="add-row" type="button" title="Add semester" aria-label="Add semester">
-              +
-            </button>
+            <div class="heading-actions">
+              <button class="add-button" id="add-row" type="button" title="Add semester (Ctrl+Enter)" aria-label="Add semester">
+                <span class="add-icon">+</span>
+                <span class="add-label">Add</span>
+              </button>
+            </div>
           </div>
 
           <div class="table-wrap">
@@ -57,6 +98,7 @@
                   <th>Semester</th>
                   <th>SGPA</th>
                   <th>Credits</th>
+                  <th>%</th>
                   <th class="action-heading">Action</th>
                 </tr>
               </thead>
@@ -65,15 +107,50 @@
           </div>
 
           <div class="panel-actions">
-            <button id="sample-data" type="button">Load sample</button>
-            <button id="clear-all" type="button">Clear all</button>
+            <button id="export-btn" type="button" class="action-btn export">
+              <span class="btn-icon">📄</span> Export
+            </button>
+            <button id="sample-data" type="button" class="action-btn">
+              <span class="btn-icon">✦</span> Load sample
+            </button>
+            <button id="clear-all" type="button" class="action-btn danger">
+              <span class="btn-icon">✕</span> Clear all
+            </button>
           </div>
         </section>
+
+        <!-- Keyboard shortcuts hint -->
+        <div class="kbd-hint" id="kbd-hint">
+          <span><kbd>Ctrl</kbd>+<kbd>Enter</kbd> Add semester</span>
+          <span><kbd>Ctrl</kbd>+<kbd>⌫</kbd> Remove last</span>
+          <span><kbd>Ctrl</kbd>+<kbd>S</kbd> Export</span>
+        </div>
       </section>
 
+      <!-- ───── Right column / Sidebar ───── -->
       <aside class="insights" aria-label="CGPA insights">
-        <section class="target-panel">
-          <h2>Target planner</h2>
+        <!-- Trend chart -->
+        <section class="trend-panel glass-card">
+          <h2>📈 SGPA Trend</h2>
+          <div class="chart-area" id="chart-area">
+            <canvas id="trend-chart" height="160"></canvas>
+            <p class="chart-empty" id="chart-empty">Add semesters to see trends</p>
+          </div>
+        </section>
+
+        <!-- GPA Distribution -->
+        <section class="distribution-panel glass-card">
+          <h2>📊 GPA Distribution</h2>
+          <div class="distribution-area" id="distribution-area">
+            <canvas id="distribution-chart" width="280" height="180"></canvas>
+            <p class="chart-empty" id="dist-empty">Add semesters to see distribution</p>
+          </div>
+          <div class="dist-legend" id="dist-legend"></div>
+        </section>
+
+        <!-- Target planner -->
+        <section class="target-panel glass-card">
+          <h2>🎯 Target planner</h2>
           <label for="target-cgpa">Target CGPA</label>
           <input id="target-cgpa" type="number" min="0" max="10" step="0.01" value="8.50" />
           <label for="next-credits">Next semester credits</label>
@@ -81,27 +158,48 @@
           <div class="target-result" id="target-result">Add current semesters to calculate a target.</div>
         </section>
 
-        <section class="tips-panel">
-          <h2>Grade bands</h2>
-          <div class="band">
-            <span>9.00+</span>
-            <strong>Outstanding</strong>
+        <!-- Grade bands -->
+        <section class="tips-panel glass-card">
+          <h2>🏆 Grade bands</h2>
+          <div class="band" data-min="9">
+            <div class="band-bar outstanding"></div>
+            <div class="band-info">
+              <strong>Outstanding</strong>
+              <span>9.00+</span>
+            </div>
           </div>
-          <div class="band">
-            <span>8.00-8.99</span>
-            <strong>Excellent</strong>
+          <div class="band" data-min="8">
+            <div class="band-bar excellent"></div>
+            <div class="band-info">
+              <strong>Excellent</strong>
+              <span>8.00 – 8.99</span>
+            </div>
           </div>
-          <div class="band">
-            <span>7.00-7.99</span>
-            <strong>Strong</strong>
+          <div class="band" data-min="7">
+            <div class="band-bar strong"></div>
+            <div class="band-info">
+              <strong>Strong</strong>
+              <span>7.00 – 7.99</span>
+            </div>
           </div>
-          <div class="band">
-            <span>6.00-6.99</span>
-            <strong>Steady</strong>
+          <div class="band" data-min="6">
+            <div class="band-bar steady"></div>
+            <div class="band-info">
+              <strong>Steady</strong>
+              <span>6.00 – 6.99</span>
+            </div>
           </div>
         </section>
       </aside>
     </main>
+
+    <!-- Footer -->
+    <footer class="app-footer" id="app-footer">
+      <p>Built with ✦ — Data saved locally in your browser</p>
+    </footer>
+
+    <!-- Confetti canvas -->
+    <canvas id="confetti" aria-hidden="true"></canvas>
 
     <script src="script.js"></script>
   </body>
