@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CGPA Calculator</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="workspace" aria-labelledby="app-title">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow">Academic planner</p>
+            <h1 id="app-title">CGPA Calculator</h1>
+          </div>
+          <div class="scale-control" aria-label="Grade scale">
+            <label for="scale">Scale</label>
+            <select id="scale">
+              <option value="10">10 point</option>
+              <option value="4">4 point</option>
+            </select>
+          </div>
+        </header>
+
+        <section class="summary-grid" aria-label="CGPA summary">
+          <article class="score-panel">
+            <span>Current CGPA</span>
+            <strong id="cgpa">0.00</strong>
+            <small id="performance-label">Add semesters to begin</small>
+          </article>
+          <article>
+            <span>Total credits</span>
+            <strong id="total-credits">0</strong>
+          </article>
+          <article>
+            <span>Weighted points</span>
+            <strong id="total-points">0.00</strong>
+          </article>
+        </section>
+
+        <section class="calculator-panel">
+          <div class="panel-heading">
+            <div>
+              <h2>Semesters</h2>
+              <p>Enter each semester SGPA and credits. CGPA updates instantly.</p>
+            </div>
+            <button class="icon-button primary" id="add-row" type="button" title="Add semester" aria-label="Add semester">
+              +
+            </button>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Semester</th>
+                  <th>SGPA</th>
+                  <th>Credits</th>
+                  <th class="action-heading">Action</th>
+                </tr>
+              </thead>
+              <tbody id="semester-body"></tbody>
+            </table>
+          </div>
+
+          <div class="panel-actions">
+            <button id="sample-data" type="button">Load sample</button>
+            <button id="clear-all" type="button">Clear all</button>
+          </div>
+        </section>
+      </section>
+
+      <aside class="insights" aria-label="CGPA insights">
+        <section class="target-panel">
+          <h2>Target planner</h2>
+          <label for="target-cgpa">Target CGPA</label>
+          <input id="target-cgpa" type="number" min="0" max="10" step="0.01" value="8.50" />
+          <label for="next-credits">Next semester credits</label>
+          <input id="next-credits" type="number" min="1" step="1" value="20" />
+          <div class="target-result" id="target-result">Add current semesters to calculate a target.</div>
+        </section>
+
+        <section class="tips-panel">
+          <h2>Grade bands</h2>
+          <div class="band">
+            <span>9.00+</span>
+            <strong>Outstanding</strong>
+          </div>
+          <div class="band">
+            <span>8.00-8.99</span>
+            <strong>Excellent</strong>
+          </div>
+          <div class="band">
+            <span>7.00-7.99</span>
+            <strong>Strong</strong>
+          </div>
+          <div class="band">
+            <span>6.00-6.99</span>
+            <strong>Steady</strong>
+          </div>
+        </section>
+      </aside>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
